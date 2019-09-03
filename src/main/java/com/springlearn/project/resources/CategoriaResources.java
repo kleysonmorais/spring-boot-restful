@@ -3,6 +3,9 @@ package com.springlearn.project.resources;
 import com.springlearn.project.domain.Categoria;
 import com.springlearn.project.dto.CategoriaDTO;
 import com.springlearn.project.services.CategoriaService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +25,14 @@ public class CategoriaResources {
     @Autowired
     private CategoriaService service;
 
+    @ApiOperation(value = "Buscar por ID")
     @GetMapping(value = "/{id}")
     public ResponseEntity<Categoria> find(@PathVariable Integer id){
         Categoria obj = service.find(id);
         return ResponseEntity.ok().body(obj);
     }
 
+    @ApiOperation(value = "Insere Categoria")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Void> insert(@Valid  @RequestBody CategoriaDTO objDto) {
@@ -37,6 +42,7 @@ public class CategoriaResources {
         return ResponseEntity.created(uri).build();
     }
 
+    @ApiOperation(value = "Atualiza Categoria")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> update(@Valid @RequestBody CategoriaDTO objDto, @PathVariable Integer id){
@@ -47,12 +53,17 @@ public class CategoriaResources {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @ApiOperation(value = "Remove Categoria")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Não é possível excluir uma categoria que possui produtos"),
+            @ApiResponse(code = 404, message = "Código inexistente") })
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id){
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @ApiOperation(value = "Buscar Todas as Categorias")
     @GetMapping
     public ResponseEntity<List<CategoriaDTO>> findAll(){
         List<Categoria> list = service.findAll();
@@ -60,6 +71,7 @@ public class CategoriaResources {
         return ResponseEntity.ok().body(listDto);
     }
 
+    @ApiOperation(value = "Buscar Categorias Paginadas")
     @GetMapping(value="/page")
     public ResponseEntity<Page<CategoriaDTO>> findPage(
             @RequestParam(value="page", defaultValue="0") Integer page,
